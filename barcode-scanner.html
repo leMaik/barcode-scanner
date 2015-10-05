@@ -1,0 +1,91 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<dom-module id="barcode-scanner">
+  <style>
+    :host {
+      display: block;
+    }
+
+    video {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+  </style>
+  <template>
+    <div id="interactive" class="viewport"></div>
+  </template>
+
+  <script src="../bower_components/quagga/dist/quagga.min.js"></script>
+  <script>
+    Polymer({
+      is: 'barcode-scanner',
+      properties: {
+        result: {
+          type: Object,
+          notify: true,
+          readOnly: true,
+          value: null
+        },
+        code: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true,
+          readOnly: true,
+          value: ''
+        },
+        active: {
+          type: Boolean,
+          value: true,
+          notify: true,
+          reflectToAttribute: true
+        }
+      },
+
+      attached: function() {
+        this._isReady = false;
+        var _this = this;
+
+        Quagga.init({
+          inputStream : {
+            name : "Live",
+            type : "LiveStream"
+          },
+          decoder : {
+            readers : ["ean_reader"]
+          }
+        }, function(err) {
+          _this.querySelector('video').className += ' barcode-scanner';
+
+          if (err) {
+            console.log(err);
+            return;
+          }
+
+          if (_this.active) {
+            _this._isReady = true;
+            Quagga.start();
+          }
+        });
+
+        Quagga.onDetected(function(result) {
+          if (_this.active) {
+            _this._setResult(result);
+            _this._setCode(result.codeResult.code);
+            _this.fire('recognize', {code: result.codeResult.code, result: result});
+          }
+        });
+      },
+
+      suspend: function() {
+        Quagga.stop();
+      },
+
+      resume: function() {
+        Quagga.start();
+      }
+    });
+  </script>
+</dom-module>

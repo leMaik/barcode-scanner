@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>barcode-scanner demo</title>
+    <script src="../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+    <link rel="import" href="barcode-scanner.html">
+</head>
+<body>
+<template is="dom-bind">
+    <span>[[code]]</span>
+    <barcode-scanner code="{{code}}"></barcode-scanner>
+</template>
+</body>
+</html>
